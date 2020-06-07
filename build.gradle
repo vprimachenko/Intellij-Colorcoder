@@ -1,0 +1,121 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        gradlePluginPortal()
+        maven { url "https://maven-central.storage-download.googleapis.com/repos/central/data/" }
+        maven { url "https://maven.aliyun.com/nexus/content/groups/public/" }
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+        classpath "de.undercouch:gradle-download-task:4.0.2"
+    }
+}
+
+plugins {
+    id "org.jetbrains.intellij" version "0.4.20"
+    id "com.adarshr.test-logger" version "2.0.0"
+    id "de.undercouch.download" version "4.0.2"
+    id "org.jetbrains.kotlin.jvm" version "1.3.71"
+    id "jacoco"
+    id "idea"
+}
+
+apply from: "$rootDir/verifier.gradle"
+
+testlogger {
+    theme 'mocha'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url "https://maven-central.storage-download.googleapis.com/repos/central/data/" }
+    maven { url "https://maven.aliyun.com/nexus/content/groups/public/" }
+    maven { url "https://repo.eclipse.org/content/groups/releases/" }
+    maven { url "https://www.jetbrains.com/intellij-repository/releases" }
+    maven { url "https://www.jetbrains.com/intellij-repository/snapshots" }
+    maven { url "https://repo1.maven.org" }
+}
+
+def pluginsDependencies = ['java',
+                           'java-i18n',
+                           'JavaScriptLanguage',
+                           'DatabaseTools',
+                           'CSS',
+                           'platform-images',
+                           'Groovy',
+                           'properties',
+                           'yaml',
+                           "org.jetbrains.kotlin:$kotlinVersion-release-IJ2020.1-1",
+                           'org.intellij.scala:2020.1.27',
+                           'Dart:201.6668.124',
+                           'org.jetbrains.plugins.ruby:201.6668.113',
+                           'com.jetbrains.php:201.6668.113'
+]
+
+intellij {
+    pluginName name
+
+    version ideaVersion
+    updateSinceUntilBuild = false
+
+    setPlugins(*pluginsDependencies)
+}
+
+publishPlugin {
+    def authenticationToken = "$System.env.token"
+    token authenticationToken
+    channels publishChannels
+}
+
+idea {
+    project {
+        jdkName = javaVersion
+        languageLevel = javaVersion
+    }
+}
+
+
+def gistFile = { url, name ->
+    File file = new File("libs/${name}.jar")
+    file.parentFile.mkdirs()
+    if (!file.exists()) {
+        new URL(url).withInputStream { downloadStream ->
+            file.withOutputStream { fileOut ->
+                fileOut << downloadStream
+            }
+        }
+    }
+    files(file.absolutePath)
+}
+
+dependencies {
+    implementation("org.eclipse.mylyn.github:org.eclipse.egit.github.core:5.5.0.201909110433-r") {
+        exclude module: "gson"
+    }
+    compileOnly gistFile('https://gist.github.com/izhangzhihao/e9e775b9fccc621de58557a726d84339/raw/1e700b2a23eb4fa8d859f1062956dc08e860cb0b/clion.jar', 'clion')
+    compileOnly fileTree(dir: 'libs', include: ['*.jar'])
+    compile group: 'org.hsluv', name: 'hsluv', version: '0.2'
+}
+
+sourceCompatibility = javaVersion
+targetCompatibility = javaVersion
+
+[compileKotlin]*.kotlinOptions {
+    languageVersion = kotlinLanguageVersion
+    apiVersion = kotlinTargetVersion
+    jvmTarget = javaVersion
+    freeCompilerArgs = ["-Xskip-runtime-version-check"]
+}
+
+
+
+//pluginVerifier {
+//    pluginFileName = "$rootProject.name-$version"
+//    ides = ["IC-201.6668.121"]
+//    verifierVersion = "1.232"
+//}
+//
+//check.dependsOn pluginVerifier

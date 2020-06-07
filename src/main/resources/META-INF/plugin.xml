@@ -1,0 +1,29 @@
+<idea-plugin>
+    <id>vprimachenko.colorcoder</id>
+    <name>Colorcoder</name>
+    <vendor email="vprimachenko@ya.ru" url="https://github.com/vprimachenko">Valerij Primachenko</vendor>
+
+    <description><![CDATA[
+           makes each identifier a unique color. bla bla bla balb alb alb albal blab alb alb alb
+        ]]>
+    </description>
+
+    <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
+    <idea-version since-build="201.6668"/>
+
+    <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
+         on how to target different products -->
+    <depends>com.intellij.modules.lang</depends>
+
+
+    <extensions defaultExtensionNs="com.intellij">
+        <highlightVisitor implementation="com.github.vprimachenko.colorcoder.Colorcoder"/>
+
+
+        <applicationConfigurable groupId="editor" instance="com.github.vprimachenko.colorcoder.settings.ColorcoderConfigurable"/>
+        <applicationService serviceImplementation="com.github.vprimachenko.colorcoder.settings.ColorcoderSettings"/>
+
+        <additionalTextAttributes scheme="Obsidian (Colorcoded)" file="colorSchemes/Obsidian_colorcoded.xml"/>
+    </extensions>
+
+</idea-plugin>

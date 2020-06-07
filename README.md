@@ -1,0 +1,1 @@
+# Colorcoder for Intellij Platform
